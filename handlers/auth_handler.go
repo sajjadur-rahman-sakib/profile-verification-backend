@@ -21,7 +21,7 @@ func NewAuthHandler(authService *services.AuthService, emailService *services.Em
 	return &AuthHandler{authService, emailService, faceService}
 }
 
-func (h *AuthHandler) Register(c echo.Context) error {
+func (h *AuthHandler) Signup(c echo.Context) error {
 	file, err := c.FormFile("profile_picture")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Profile picture required"})

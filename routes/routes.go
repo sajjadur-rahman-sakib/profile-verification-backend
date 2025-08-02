@@ -15,7 +15,7 @@ func SetupRoutes(e *echo.Echo) {
 
 	api := e.Group("/api")
 	{
-		api.POST("/signup", authHandler.Register)
+		api.POST("/signup", authHandler.Signup)
 		api.POST("/verify-otp", authHandler.VerifyOTP)
 		api.POST("/upload-document", authHandler.UploadDocument)
 		api.POST("/upload-selfie", authHandler.UploadSelfie)
