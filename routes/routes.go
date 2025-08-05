@@ -20,5 +20,7 @@ func SetupRoutes(e *echo.Echo) {
 		api.POST("/upload-document", authHandler.UploadDocument)
 		api.POST("/upload-selfie", authHandler.UploadSelfie)
 		api.POST("/login", authHandler.Login)
+		api.POST("/delete-account", authHandler.DeleteAccount)
+		api.POST("/change-password", authHandler.ChangePassword)
 	}
 }

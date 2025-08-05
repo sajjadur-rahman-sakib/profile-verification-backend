@@ -4,16 +4,16 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"io"
+	"log"
 	"mime/multipart"
 	"os"
+	"path/filepath"
 	"time"
 
-	"main.go/config"
-	"main.go/models"
-
-	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
+	"main.go/config"
+	"main.go/models"
 )
 
 type AuthService struct{}
@@ -83,27 +83,17 @@ func (s *AuthService) UpdateUser(user *models.User) error {
 	return config.DB.Save(user).Error
 }
 
-func (s *AuthService) Login(email, password string) (string, error) {
+func (s *AuthService) Login(email, password string) (*models.User, error) {
 	var user models.User
 	if err := config.DB.Where("email = ? AND is_verified = ?", email, true).First(&user).Error; err != nil {
-		return "", echo.ErrUnauthorized
+		return nil, echo.ErrUnauthorized
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return "", echo.ErrUnauthorized
+		return nil, echo.ErrUnauthorized
 	}
 
-	token := jwt.New(jwt.SigningMethodHS256)
-	claims := token.Claims.(jwt.MapClaims)
-	claims["user_id"] = user.ID
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
-
-	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
+	return &user, nil
 }
 
 func (s *AuthService) SaveFile(file *multipart.FileHeader, path string) error {
@@ -121,6 +111,54 @@ func (s *AuthService) SaveFile(file *multipart.FileHeader, path string) error {
 
 	_, err = io.Copy(dst, src)
 	return err
+}
+
+func (s *AuthService) DeleteAccount(email string) error {
+	var user models.User
+	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
+		return err
+	}
+
+	if err := config.DB.Delete(&user).Error; err != nil {
+		return err
+	}
+
+	uploadDir := os.Getenv("UPLOAD_DIR")
+	for _, filePath := range []string{user.ProfilePicture, user.DocumentImage, user.SelfieImage} {
+		if filePath != "" {
+			absPath := filepath.Join(uploadDir, filepath.Base(filePath))
+			if err := os.Remove(absPath); err != nil {
+				log.Printf("Failed to delete file: %v", err)
+			}
+		}
+	}
+
+	config.DB.Where("email = ?", email).Delete(&models.OTP{})
+
+	return nil
+}
+
+func (s *AuthService) ChangePassword(email, currentPassword, newPassword string) error {
+	var user models.User
+	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
+		return err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(currentPassword)); err != nil {
+		return echo.ErrUnauthorized
+	}
+
+	if len(newPassword) < 6 {
+		return echo.ErrBadRequest
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	user.Password = string(hashedPassword)
+	return config.DB.Save(&user).Error
 }
 
 func generateRandomString(length int) string {

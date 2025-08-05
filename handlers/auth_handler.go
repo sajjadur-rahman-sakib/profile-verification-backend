@@ -1,14 +1,14 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"path/filepath"
 	"time"
 
+	"github.com/labstack/echo/v4"
 	"main.go/models"
 	"main.go/services"
-
-	"github.com/labstack/echo/v4"
 )
 
 type AuthHandler struct {
@@ -114,7 +114,7 @@ func (h *AuthHandler) UploadSelfie(c echo.Context) error {
 	}
 
 	if !isMatch {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Faces do not match"})
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{"verified": false, "message": "Faces do not match"})
 	}
 
 	user.SelfieImage = selfiePath
@@ -123,17 +123,45 @@ func (h *AuthHandler) UploadSelfie(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update user"})
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{"message": "Account created successfully"})
+	return c.JSON(http.StatusOK, map[string]interface{}{"verified": true, "message": "Account created successfully"})
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
 	email := c.FormValue("email")
 	password := c.FormValue("password")
 
-	token, err := h.authService.Login(email, password)
+	user, err := h.authService.Login(email, password)
 	if err != nil {
+		log.Printf("Login error: %v", err)
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{"token": token})
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"name":            user.Name,
+		"email":           user.Email,
+		"address":         user.Address,
+		"profile_picture": user.ProfilePicture,
+	})
+}
+
+func (h *AuthHandler) DeleteAccount(c echo.Context) error {
+	email := c.FormValue("email")
+	err := h.authService.DeleteAccount(email)
+	if err != nil {
+		log.Printf("Delete account error: %v", err)
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+	return c.JSON(http.StatusOK, map[string]string{"message": "Account deleted successfully"})
+}
+
+func (h *AuthHandler) ChangePassword(c echo.Context) error {
+	email := c.FormValue("email")
+	currentPassword := c.FormValue("current_password")
+	newPassword := c.FormValue("new_password")
+	err := h.authService.ChangePassword(email, currentPassword, newPassword)
+	if err != nil {
+		log.Printf("Change password error: %v", err)
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+	return c.JSON(http.StatusOK, map[string]string{"message": "Password changed successfully"})
 }
