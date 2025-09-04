@@ -165,3 +165,38 @@ func (h *AuthHandler) ChangePassword(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, map[string]string{"message": "Password changed successfully"})
 }
+
+func (h *AuthHandler) ForgotPassword(c echo.Context) error {
+	email := c.FormValue("email")
+
+	if err := h.authService.InitiateForgotPassword(email); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Email not found"})
+	}
+
+	otp, err := h.authService.GenerateOTP(email)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate OTP"})
+	}
+
+	if err := h.emailService.SendOTP(email, otp); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to send OTP"})
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{"message": "Password reset OTP sent to email"})
+}
+
+func (h *AuthHandler) ResetPassword(c echo.Context) error {
+	email := c.FormValue("email")
+	otp := c.FormValue("otp")
+	newPassword := c.FormValue("new_password")
+
+	if err := h.authService.VerifyOTP(email, otp); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid or expired OTP"})
+	}
+
+	if err := h.authService.ResetPassword(email, newPassword); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{"message": "Password reset successfully"})
+}

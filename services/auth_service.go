@@ -161,6 +161,33 @@ func (s *AuthService) ChangePassword(email, currentPassword, newPassword string)
 	return config.DB.Save(&user).Error
 }
 
+func (s *AuthService) InitiateForgotPassword(email string) error {
+	var user models.User
+	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
+		return echo.ErrNotFound
+	}
+	return nil
+}
+
+func (s *AuthService) ResetPassword(email, newPassword string) error {
+	var user models.User
+	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
+		return echo.ErrNotFound
+	}
+
+	if len(newPassword) < 6 {
+		return echo.ErrBadRequest
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	user.Password = string(hashedPassword)
+	return config.DB.Save(&user).Error
+}
+
 func generateRandomString(length int) string {
 	b := make([]byte, length/2)
 	rand.Read(b)

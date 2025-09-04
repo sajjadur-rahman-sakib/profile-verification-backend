@@ -15,12 +15,14 @@ func SetupRoutes(e *echo.Echo) {
 
 	api := e.Group("/api")
 	{
-		api.POST("/signup", authHandler.Signup)
+		api.POST("/user-signup", authHandler.Signup)
 		api.POST("/verify-otp", authHandler.VerifyOTP)
 		api.POST("/upload-document", authHandler.UploadDocument)
 		api.POST("/upload-selfie", authHandler.UploadSelfie)
-		api.POST("/login", authHandler.Login)
+		api.POST("/user-login", authHandler.Login)
 		api.POST("/delete-account", authHandler.DeleteAccount)
 		api.POST("/change-password", authHandler.ChangePassword)
+		api.POST("/forgot-password", authHandler.ForgotPassword)
+		api.POST("/reset-password", authHandler.ResetPassword)
 	}
 }

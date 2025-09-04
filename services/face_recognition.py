@@ -18,7 +18,7 @@ def verify_faces():
         if not encoding1 or not encoding2:
             return jsonify({"error": "No faces detected in one or both images"}), 400
 
-        results = face_recognition.compare_faces([encoding1[0]], encoding2[0], tolerance=0.5)
+        results = face_recognition.compare_faces([encoding1[0]], encoding2[0], tolerance=0.6)
         return jsonify({"is_match": bool(results[0])})
 
     except Exception as e:
