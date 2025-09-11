@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"log"
+	"mime/multipart"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -199,4 +200,31 @@ func (h *AuthHandler) ResetPassword(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "Password reset successfully"})
+}
+
+func (h *AuthHandler) UpdateProfile(c echo.Context) error {
+	email := c.FormValue("email")
+
+	var name, address *string
+	if nameStr := c.FormValue("name"); nameStr != "" {
+		name = &nameStr
+	}
+	if addressStr := c.FormValue("address"); addressStr != "" {
+		address = &addressStr
+	}
+
+	var profilePicture *multipart.FileHeader
+	if file, err := c.FormFile("profile_picture"); err == nil {
+		profilePicture = file
+	}
+
+	if name == nil && address == nil && profilePicture == nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "No update data provided"})
+	}
+
+	if err := h.authService.UpdateProfile(email, name, address, profilePicture); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{"message": "Profile updated successfully"})
 }

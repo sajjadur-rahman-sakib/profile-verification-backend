@@ -24,5 +24,6 @@ func SetupRoutes(e *echo.Echo) {
 		api.POST("/change-password", authHandler.ChangePassword)
 		api.POST("/forgot-password", authHandler.ForgotPassword)
 		api.POST("/reset-password", authHandler.ResetPassword)
+		api.POST("/update-profile", authHandler.UpdateProfile)
 	}
 }

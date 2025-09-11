@@ -83,6 +83,39 @@ func (s *AuthService) UpdateUser(user *models.User) error {
 	return config.DB.Save(user).Error
 }
 
+func (s *AuthService) UpdateProfile(email string, name, address *string, profilePicture *multipart.FileHeader) error {
+	var user models.User
+	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
+		return err
+	}
+
+	if name != nil {
+		user.Name = *name
+	}
+
+	if address != nil {
+		user.Address = *address
+	}
+
+	if profilePicture != nil {
+		profilePath := filepath.Join("uploads", time.Now().Format("20060102150405")+"_"+profilePicture.Filename)
+		if err := s.SaveFile(profilePicture, profilePath); err != nil {
+			return err
+		}
+
+		// Delete old profile picture if it exists
+		if user.ProfilePicture != "" {
+			if err := os.Remove(user.ProfilePicture); err != nil {
+				log.Printf("Failed to delete old profile picture: %v", err)
+			}
+		}
+
+		user.ProfilePicture = profilePath
+	}
+
+	return config.DB.Save(&user).Error
+}
+
 func (s *AuthService) Login(email, password string) (*models.User, error) {
 	var user models.User
 	if err := config.DB.Where("email = ? AND is_verified = ?", email, true).First(&user).Error; err != nil {
