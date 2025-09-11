@@ -8,6 +8,8 @@ import (
 )
 
 func SetupRoutes(e *echo.Echo) {
+	e.Static("/uploads", "uploads")
+
 	authService := services.NewAuthService()
 	emailService := services.NewEmailService()
 	faceService := services.NewFaceService()
