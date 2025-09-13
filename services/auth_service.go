@@ -2,7 +2,6 @@ package services
 
 import (
 	"crypto/rand"
-	"encoding/hex"
 	"io"
 	"log"
 	"mime/multipart"
@@ -221,7 +220,12 @@ func (s *AuthService) GetUserByEmail(email string) (*models.User, error) {
 }
 
 func generateRandomString(length int) string {
-	b := make([]byte, length/2)
-	rand.Read(b)
-	return hex.EncodeToString(b)[:length]
+	const charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, length)
+	randomData := make([]byte, length)
+	rand.Read(randomData)
+	for i := range b {
+		b[i] = charset[randomData[i]%byte(len(charset))]
+	}
+	return string(b)
 }
