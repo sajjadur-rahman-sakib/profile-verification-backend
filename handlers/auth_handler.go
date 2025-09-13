@@ -228,3 +228,27 @@ func (h *AuthHandler) UpdateProfile(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "Profile updated successfully"})
 }
+
+func (h *AuthHandler) SearchProfile(c echo.Context) error {
+	email := c.QueryParam("email")
+
+	if email == "" {
+		email = c.FormValue("email")
+	}
+
+	if email == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Email is required"})
+	}
+
+	user, err := h.authService.GetUserByEmail(email)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"name":            user.Name,
+		"email":           user.Email,
+		"address":         user.Address,
+		"profile_picture": user.ProfilePicture,
+	})
+}
