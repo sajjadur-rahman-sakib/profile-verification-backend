@@ -240,7 +240,7 @@ func (h *AuthHandler) SearchProfile(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Email is required"})
 	}
 
-	user, err := h.authService.GetUserByEmail(email)
+	user, err := h.authService.SearchUserByEmail(email)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Verified user not found"})
 	}
