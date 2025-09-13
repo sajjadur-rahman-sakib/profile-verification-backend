@@ -21,14 +21,14 @@ func SetupRoutes(e *echo.Echo) {
 		api.POST("/verify-otp", authHandler.VerifyOTP)
 		api.POST("/upload-document", authHandler.UploadDocument)
 		api.POST("/upload-selfie", authHandler.UploadSelfie)
+
 		api.POST("/user-login", authHandler.Login)
-		api.POST("/delete-account", authHandler.DeleteAccount)
+		api.POST("/update-profile", authHandler.UpdateProfile)
 		api.POST("/change-password", authHandler.ChangePassword)
+		api.POST("/delete-account", authHandler.DeleteAccount)
+
 		api.POST("/forgot-password", authHandler.ForgotPassword)
 		api.POST("/reset-password", authHandler.ResetPassword)
-		api.POST("/update-profile", authHandler.UpdateProfile)
 		api.POST("/search-profile", authHandler.SearchProfile)
-
-		api.GET("/search-profile", authHandler.SearchProfile)
 	}
 }

@@ -242,7 +242,7 @@ func (h *AuthHandler) SearchProfile(c echo.Context) error {
 
 	user, err := h.authService.GetUserByEmail(email)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
+		return c.JSON(http.StatusNotFound, map[string]string{"error": "Verified user not found"})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -250,5 +250,6 @@ func (h *AuthHandler) SearchProfile(c echo.Context) error {
 		"email":           user.Email,
 		"address":         user.Address,
 		"profile_picture": user.ProfilePicture,
+		"is_verified":     true,
 	})
 }

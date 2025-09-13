@@ -71,14 +71,6 @@ func (s *AuthService) UpdateDocument(email, documentPath string) error {
 	return config.DB.Save(&user).Error
 }
 
-func (s *AuthService) GetUserByEmail(email string) (*models.User, error) {
-	var user models.User
-	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
-
 func (s *AuthService) UpdateUser(user *models.User) error {
 	return config.DB.Save(user).Error
 }
@@ -103,7 +95,6 @@ func (s *AuthService) UpdateProfile(email string, name, address *string, profile
 			return err
 		}
 
-		// Delete old profile picture if it exists
 		if user.ProfilePicture != "" {
 			if err := os.Remove(user.ProfilePicture); err != nil {
 				log.Printf("Failed to delete old profile picture: %v", err)
@@ -219,6 +210,14 @@ func (s *AuthService) ResetPassword(email, newPassword string) error {
 
 	user.Password = string(hashedPassword)
 	return config.DB.Save(&user).Error
+}
+
+func (s *AuthService) GetUserByEmail(email string) (*models.User, error) {
+	var user models.User
+	if err := config.DB.Where("email = ? AND is_verified = ?", email, true).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 func generateRandomString(length int) string {
