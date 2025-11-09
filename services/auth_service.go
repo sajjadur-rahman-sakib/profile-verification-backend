@@ -82,7 +82,7 @@ func (s *AuthService) UpdateUser(user *models.User) error {
 	return config.DB.Save(user).Error
 }
 
-func (s *AuthService) UpdateProfile(email string, name, address *string, profilePicture *multipart.FileHeader) error {
+func (s *AuthService) UpdateProfile(email string, name, address *string, profilePicture *multipart.FileHeader, link *string) error {
 	var user models.User
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
 		return err
@@ -94,6 +94,10 @@ func (s *AuthService) UpdateProfile(email string, name, address *string, profile
 
 	if address != nil {
 		user.Address = *address
+	}
+
+	if link != nil {
+		user.Link = link
 	}
 
 	if profilePicture != nil {

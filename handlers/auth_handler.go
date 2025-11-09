@@ -160,6 +160,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		"email":           user.Email,
 		"address":         user.Address,
 		"profile_picture": user.ProfilePicture,
+		"link":            user.Link,
 	})
 }
 
@@ -223,12 +224,15 @@ func (h *AuthHandler) ResetPassword(c echo.Context) error {
 func (h *AuthHandler) UpdateProfile(c echo.Context) error {
 	email := c.FormValue("email")
 
-	var name, address *string
+	var name, address, link *string
 	if nameStr := c.FormValue("name"); nameStr != "" {
 		name = &nameStr
 	}
 	if addressStr := c.FormValue("address"); addressStr != "" {
 		address = &addressStr
+	}
+	if linkStr := c.FormValue("link"); linkStr != "" {
+		link = &linkStr
 	}
 
 	var profilePicture *multipart.FileHeader
@@ -236,11 +240,11 @@ func (h *AuthHandler) UpdateProfile(c echo.Context) error {
 		profilePicture = file
 	}
 
-	if name == nil && address == nil && profilePicture == nil {
+	if name == nil && address == nil && profilePicture == nil && link == nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "No update data provided"})
 	}
 
-	if err := h.authService.UpdateProfile(email, name, address, profilePicture); err != nil {
+	if err := h.authService.UpdateProfile(email, name, address, profilePicture, link); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
@@ -269,5 +273,6 @@ func (h *AuthHandler) SearchProfile(c echo.Context) error {
 		"address":         user.Address,
 		"profile_picture": user.ProfilePicture,
 		"is_verified":     true,
+		"link":            user.Link,
 	})
 }

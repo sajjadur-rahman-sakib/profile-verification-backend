@@ -14,4 +14,5 @@ type User struct {
 	DocumentImage  string
 	SelfieImage    string
 	IsVerified     bool
+	Link           *string `gorm:"unique"`
 }
