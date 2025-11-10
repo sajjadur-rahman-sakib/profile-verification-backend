@@ -13,7 +13,9 @@ func SetupRoutes(e *echo.Echo) {
 	authService := services.NewAuthService()
 	emailService := services.NewEmailService()
 	faceService := services.NewFaceService()
-	authHandler := handlers.NewAuthHandler(authService, emailService, faceService)
+	ratingService := services.NewRatingService()
+	authHandler := handlers.NewAuthHandler(authService, emailService, faceService, ratingService)
+	ratingHandler := handlers.NewRatingHandler(ratingService)
 
 	api := e.Group("/api")
 	{
@@ -31,5 +33,8 @@ func SetupRoutes(e *echo.Echo) {
 		api.POST("/forgot-password", authHandler.ForgotPassword)
 		api.POST("/reset-password", authHandler.ResetPassword)
 		api.POST("/search-profile", authHandler.SearchProfile)
+
+		api.POST("/give-rating", ratingHandler.GiveRating)
+		api.POST("/user-ratings", ratingHandler.GetUserRatings)
 	}
 }

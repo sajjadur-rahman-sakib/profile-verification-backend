@@ -13,13 +13,14 @@ import (
 )
 
 type AuthHandler struct {
-	authService  *services.AuthService
-	emailService *services.EmailService
-	faceService  *services.FaceService
+	authService   *services.AuthService
+	emailService  *services.EmailService
+	faceService   *services.FaceService
+	ratingService *services.RatingService
 }
 
-func NewAuthHandler(authService *services.AuthService, emailService *services.EmailService, faceService *services.FaceService) *AuthHandler {
-	return &AuthHandler{authService, emailService, faceService}
+func NewAuthHandler(authService *services.AuthService, emailService *services.EmailService, faceService *services.FaceService, ratingService *services.RatingService) *AuthHandler {
+	return &AuthHandler{authService, emailService, faceService, ratingService}
 }
 
 func (h *AuthHandler) Signup(c echo.Context) error {
@@ -161,6 +162,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		"address":         user.Address,
 		"profile_picture": user.ProfilePicture,
 		"link":            user.Link,
+		"average_rating":  user.AverageRating,
 	})
 }
 
@@ -274,5 +276,6 @@ func (h *AuthHandler) SearchProfile(c echo.Context) error {
 		"profile_picture": user.ProfilePicture,
 		"is_verified":     true,
 		"link":            user.Link,
+		"average_rating":  user.AverageRating,
 	})
 }

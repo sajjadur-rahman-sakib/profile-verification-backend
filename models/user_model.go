@@ -15,4 +15,5 @@ type User struct {
 	SelfieImage    string
 	IsVerified     bool
 	Link           *string `gorm:"unique"`
+	AverageRating  float64 `gorm:"default:0"`
 }
