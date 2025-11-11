@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 	"main.go/config"
@@ -129,6 +130,21 @@ func (s *AuthService) Login(email, password string) (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+func (s *AuthService) GenerateToken(user *models.User) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id": user.ID,
+		"email":   user.Email,
+		"exp":     time.Now().Add(24 * time.Hour).Unix(),
+		"iat":     time.Now().Unix(),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signed, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		return "", err
+	}
+	return signed, nil
 }
 
 func (s *AuthService) SaveFile(file *multipart.FileHeader, path string) error {

@@ -156,6 +156,12 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 	}
 
+	token, err := h.authService.GenerateToken(user)
+	if err != nil {
+		log.Printf("Token generation error: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to generate token"})
+	}
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"name":            user.Name,
 		"email":           user.Email,
@@ -163,6 +169,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		"profile_picture": user.ProfilePicture,
 		"link":            user.Link,
 		"average_rating":  user.AverageRating,
+		"token":           token,
 	})
 }
 

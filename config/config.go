@@ -33,7 +33,7 @@ func ConnectDatabase() {
 
 	DB = db
 
-	db.AutoMigrate(&models.User{}, &models.OTP{}, &models.Rating{})
+	db.AutoMigrate(&models.User{}, &models.OTP{}, &models.Rating{}, &models.Message{})
 }
 
 func UploadDirectory() {
