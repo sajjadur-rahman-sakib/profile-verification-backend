@@ -22,20 +22,20 @@ func SetupRoutes(e *echo.Echo) {
 
 	api := e.Group("/api")
 	{
-		api.POST("/user-login", authHandler.Login, middleware.JWTMiddleware)
+		api.POST("/user-login", authHandler.Login)
 		api.POST("/update-profile", authHandler.UpdateProfile, middleware.JWTMiddleware)
 		api.POST("/change-password", authHandler.ChangePassword, middleware.JWTMiddleware)
 		api.POST("/delete-account", authHandler.DeleteAccount, middleware.JWTMiddleware)
 
 		api.POST("/user-signup", authHandler.Signup)
-		api.POST("/resend-otp", authHandler.ResendOTP)
-		api.POST("/verify-otp", authHandler.VerifyOTP)
-		api.POST("/upload-document", authHandler.UploadDocument)
-		api.POST("/upload-selfie", authHandler.UploadSelfie)
+		api.POST("/resend-otp", authHandler.ResendOTP, middleware.JWTMiddleware)
+		api.POST("/verify-otp", authHandler.VerifyOTP, middleware.JWTMiddleware)
+		api.POST("/upload-document", authHandler.UploadDocument, middleware.JWTMiddleware)
+		api.POST("/upload-selfie", authHandler.UploadSelfie, middleware.JWTMiddleware)
 
 		api.POST("/forgot-password", authHandler.ForgotPassword)
 		api.POST("/reset-password", authHandler.ResetPassword)
-		api.POST("/search-profile", authHandler.SearchProfile)
+		api.POST("/search-profile", authHandler.SearchProfile, middleware.JWTMiddleware)
 
 		api.POST("/give-rating", ratingHandler.GiveRating, middleware.JWTMiddleware)
 		api.POST("/user-ratings", ratingHandler.GetUserRatings, middleware.JWTMiddleware)
