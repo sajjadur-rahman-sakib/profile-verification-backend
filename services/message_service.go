@@ -79,3 +79,37 @@ func (s *MessageService) GetInbox(email string, limit int) ([]models.Message, er
 	}
 	return messages, nil
 }
+
+type Contact struct {
+	Email string `json:"email"`
+	Name  string `json:"name"`
+}
+
+func (s *MessageService) GetContacts(userEmail string) ([]Contact, error) {
+	if userEmail == "" {
+		return nil, errors.New("email is required")
+	}
+
+	rows := make([]Contact, 0)
+	raw := `
+		SELECT u.email AS email, COALESCE(u.name, '') AS name
+		FROM users u
+		JOIN (
+			SELECT counterpart_email, MAX(created_at) AS last_at
+			FROM (
+				SELECT m.receiver_email AS counterpart_email, m.created_at
+				FROM messages m WHERE m.sender_email = ?
+				UNION ALL
+				SELECT m.sender_email AS counterpart_email, m.created_at
+				FROM messages m WHERE m.receiver_email = ?
+			) t
+			GROUP BY counterpart_email
+		) latest ON latest.counterpart_email = u.email
+		ORDER BY latest.last_at DESC, u.email ASC
+	`
+
+	if err := config.DB.Raw(raw, userEmail, userEmail).Scan(&rows).Error; err != nil {
+		return nil, err
+	}
+	return rows, nil
+}

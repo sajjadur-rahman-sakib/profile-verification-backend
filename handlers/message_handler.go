@@ -167,3 +167,53 @@ func (h *MessageHandler) GetConversation(c echo.Context) error {
 		"messages": out,
 	})
 }
+
+func (h *MessageHandler) GetContacts(c echo.Context) error {
+	userIDVal := c.Get("user_id")
+	if userIDVal == nil {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+	}
+
+	var userID uint
+	switch v := userIDVal.(type) {
+	case float64:
+		userID = uint(v)
+	case int:
+		userID = uint(v)
+	case uint:
+		userID = v
+	case string:
+		parsed, _ := strconv.Atoi(v)
+		userID = uint(parsed)
+	default:
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token subject"})
+	}
+
+	var me models.User
+	if err := config.DB.First(&me, userID).Error; err != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "user not found"})
+	}
+
+	email := c.FormValue("email")
+	if email == "" {
+		email = c.QueryParam("email")
+	}
+	if email == "" {
+		email = me.Email
+	}
+
+	if me.Email != email {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "not allowed to view contacts of another user"})
+	}
+
+	contacts, err := h.messageService.GetContacts(email)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"email":    email,
+		"count":    len(contacts),
+		"contacts": contacts,
+	})
+}

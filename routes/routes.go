@@ -40,6 +40,7 @@ func SetupRoutes(e *echo.Echo) {
 		api.POST("/give-rating", ratingHandler.GiveRating, middleware.JWTMiddleware)
 		api.POST("/user-ratings", ratingHandler.GetUserRatings, middleware.JWTMiddleware)
 
+		api.POST("/user-contacts", messageHandler.GetContacts, middleware.JWTMiddleware)
 		api.POST("/send-message", messageHandler.SendMessage, middleware.JWTMiddleware)
 		api.POST("/user-conversation", messageHandler.GetConversation, middleware.JWTMiddleware)
 	}
