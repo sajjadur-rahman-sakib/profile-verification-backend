@@ -1,44 +1,57 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"main.go/models"
 )
 
-var DB *gorm.DB
+var configuration Config
 
-func ConnectDatabase() {
-	err := godotenv.Load("app.env")
-	if err != nil {
-		panic("Error loading .env file")
-	}
-
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"),
-	)
-
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic("Failed to connect to database")
-	}
-
-	DB = db
-
-	db.AutoMigrate(&models.User{}, &models.OTP{}, &models.Rating{}, &models.Message{})
+type Config struct {
+	DatabaseHost     string
+	DatabaseUsername string
+	DatabasePassword string
+	DatabaseName     string
+	DatabasePort     string
+	GolangPort       string
+	PythonPort       string
+	JwtSecret        string
+	SmtpHost         string
+	SmtpPort         string
+	SmtpUsername     string
+	SmtpPassword     string
+	SmtpEmail        string
+	FaceService      string
+	UploadDirectory  string
 }
 
-func UploadDirectory() {
-	uploadDir := os.Getenv("UPLOAD_DIR")
-	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
-		os.Mkdir(uploadDir, 0755)
+func loadConfig() {
+	err := godotenv.Load("app.env")
+	if err != nil {
+		panic("Error loading app.env file")
 	}
+
+	configuration = Config{
+		DatabaseHost:     os.Getenv("DATABASE_HOST"),
+		DatabaseUsername: os.Getenv("DATABASE_USERNAME"),
+		DatabasePassword: os.Getenv("DATABASE_PASSWORD"),
+		DatabaseName:     os.Getenv("DATABASE_NAME"),
+		DatabasePort:     os.Getenv("DATABASE_PORT"),
+		GolangPort:       os.Getenv("GOLANG_PORT"),
+		PythonPort:       os.Getenv("PYTHON_PORT"),
+		JwtSecret:        os.Getenv("JWT_SECRET"),
+		SmtpHost:         os.Getenv("SMTP_HOST"),
+		SmtpPort:         os.Getenv("SMTP_PORT"),
+		SmtpUsername:     os.Getenv("SMTP_USERNAME"),
+		SmtpPassword:     os.Getenv("SMTP_PASSWORD"),
+		SmtpEmail:        os.Getenv("SMTP_EMAIL"),
+		FaceService:      os.Getenv("FACE_SERVICE"),
+		UploadDirectory:  os.Getenv("UPLOAD_DIRECTORY"),
+	}
+}
+
+func GetConfig() Config {
+	loadConfig()
+	return configuration
 }

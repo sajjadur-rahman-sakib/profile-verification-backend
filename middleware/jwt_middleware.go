@@ -1,15 +1,17 @@
 package middleware
 
 import (
-	"os"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
+	"main.go/config"
 )
 
 func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		configuration := config.GetConfig()
+
 		authHeader := c.Request().Header.Get("Authorization")
 		if authHeader == "" {
 			return c.JSON(401, map[string]string{"error": "Authorization header required"})
@@ -17,7 +19,7 @@ func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 		tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(os.Getenv("JWT_SECRET")), nil
+			return []byte(configuration.JwtSecret), nil
 		})
 
 		if err != nil || !token.Valid {

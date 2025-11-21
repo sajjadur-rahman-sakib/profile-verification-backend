@@ -60,7 +60,18 @@ func (h *AuthHandler) Signup(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to send OTP"})
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{"message": "OTP sent to email"})
+	token, err := h.authService.GenerateToken(&user)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate token"})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":         "OTP sent to email",
+		"token":           token,
+		"email":           user.Email,
+		"name":            user.Name,
+		"profile_picture": user.ProfilePicture,
+	})
 }
 
 func (h *AuthHandler) ResendOTP(c echo.Context) error {

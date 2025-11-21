@@ -133,6 +133,8 @@ func (s *AuthService) Login(email, password string) (*models.User, error) {
 }
 
 func (s *AuthService) GenerateToken(user *models.User) (string, error) {
+	configuration := config.GetConfig()
+
 	claims := jwt.MapClaims{
 		"user_id": user.ID,
 		"email":   user.Email,
@@ -140,7 +142,7 @@ func (s *AuthService) GenerateToken(user *models.User) (string, error) {
 		"iat":     time.Now().Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signed, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	signed, err := token.SignedString([]byte(configuration.JwtSecret))
 	if err != nil {
 		return "", err
 	}
@@ -165,6 +167,7 @@ func (s *AuthService) SaveFile(file *multipart.FileHeader, path string) error {
 }
 
 func (s *AuthService) DeleteAccount(email string) error {
+	configuration := config.GetConfig()
 	var user models.User
 	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
 		return err
@@ -174,10 +177,9 @@ func (s *AuthService) DeleteAccount(email string) error {
 		return err
 	}
 
-	uploadDir := os.Getenv("UPLOAD_DIR")
 	for _, filePath := range []string{user.ProfilePicture, user.DocumentImage, user.SelfieImage} {
 		if filePath != "" {
-			absPath := filepath.Join(uploadDir, filepath.Base(filePath))
+			absPath := filepath.Join(configuration.UploadDirectory, filepath.Base(filePath))
 			if err := os.Remove(absPath); err != nil {
 				log.Printf("Failed to delete file: %v", err)
 			}

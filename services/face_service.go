@@ -7,6 +7,8 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+
+	"main.go/config"
 )
 
 type FaceService struct{}
@@ -16,6 +18,8 @@ func NewFaceService() *FaceService {
 }
 
 func (s *FaceService) CompareFaces(documentPath, selfiePath string) (bool, error) {
+	configuration := config.GetConfig()
+
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
@@ -37,7 +41,7 @@ func (s *FaceService) CompareFaces(documentPath, selfiePath string) (bool, error
 
 	writer.Close()
 
-	req, err := http.NewRequest("POST", os.Getenv("FACE_SERVICE_URL"), body)
+	req, err := http.NewRequest("POST", configuration.FaceService, body)
 	if err != nil {
 		return false, err
 	}

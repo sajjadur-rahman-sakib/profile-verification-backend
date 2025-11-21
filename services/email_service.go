@@ -3,7 +3,8 @@ package services
 import (
 	"fmt"
 	"net/smtp"
-	"os"
+
+	"main.go/config"
 )
 
 type EmailService struct{}
@@ -13,11 +14,7 @@ func NewEmailService() *EmailService {
 }
 
 func (s *EmailService) SendOTP(email, otp string) error {
-	from := os.Getenv("FROM_EMAIL")
-	smtpHost := os.Getenv("SMTP_HOST")
-	smtpPort := os.Getenv("SMTP_PORT")
-	username := os.Getenv("SMTP_USERNAME")
-	password := os.Getenv("SMTP_PASSWORD")
+	configuration := config.GetConfig()
 
 	htmlContent := fmt.Sprintf(`
 		<!DOCTYPE html>
@@ -84,11 +81,11 @@ func (s *EmailService) SendOTP(email, otp string) error {
 			"MIME-Version: 1.0\r\n"+
 			"Content-Type: text/html; charset=UTF-8\r\n\r\n"+
 			"%s",
-		from, email, htmlContent,
+		configuration.SmtpEmail, email, htmlContent,
 	))
 
-	auth := smtp.PlainAuth("", username, password, smtpHost)
-	addr := fmt.Sprintf("%s:%s", smtpHost, smtpPort)
+	auth := smtp.PlainAuth("", configuration.SmtpUsername, configuration.SmtpPassword, configuration.SmtpHost)
+	addr := fmt.Sprintf("%s:%s", configuration.SmtpHost, configuration.SmtpPort)
 
-	return smtp.SendMail(addr, auth, from, []string{email}, msg)
+	return smtp.SendMail(addr, auth, configuration.SmtpEmail, []string{email}, msg)
 }
