@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"main.go/config"
-	"main.go/models"
+	"verify/config"
+	"verify/models"
 )
 
 type ProfileService struct {

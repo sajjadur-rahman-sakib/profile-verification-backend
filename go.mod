@@ -1,4 +1,4 @@
-module main.go
+module verify
 
 go 1.24.3
 

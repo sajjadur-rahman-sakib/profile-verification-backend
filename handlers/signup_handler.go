@@ -5,9 +5,10 @@ import (
 	"path/filepath"
 	"time"
 
+	"verify/models"
+	"verify/services"
+
 	"github.com/labstack/echo/v4"
-	"main.go/models"
-	"main.go/services"
 )
 
 type SignupHandler struct {

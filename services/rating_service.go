@@ -3,9 +3,10 @@
 import (
 	"errors"
 
+	"verify/config"
+	"verify/models"
+
 	"gorm.io/gorm"
-	"main.go/config"
-	"main.go/models"
 )
 
 type RatingService struct{}

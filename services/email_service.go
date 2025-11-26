@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/smtp"
 
-	"main.go/config"
+	"verify/config"
 )
 
 type EmailService struct{}

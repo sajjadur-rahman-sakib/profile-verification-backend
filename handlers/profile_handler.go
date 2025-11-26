@@ -4,8 +4,9 @@ import (
 	"mime/multipart"
 	"net/http"
 
+	"verify/services"
+
 	"github.com/labstack/echo/v4"
-	"main.go/services"
 )
 
 type ProfileHandler struct {

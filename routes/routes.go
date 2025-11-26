@@ -1,10 +1,11 @@
 package routes
 
 import (
+	"verify/handlers"
+	"verify/middleware"
+	"verify/services"
+
 	"github.com/labstack/echo/v4"
-	"main.go/handlers"
-	"main.go/middleware"
-	"main.go/services"
 )
 
 func SetupRoutes(e *echo.Echo) {

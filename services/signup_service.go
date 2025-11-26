@@ -1,9 +1,10 @@
 package services
 
 import (
+	"verify/config"
+	"verify/models"
+
 	"golang.org/x/crypto/bcrypt"
-	"main.go/config"
-	"main.go/models"
 )
 
 type SignupService struct{}

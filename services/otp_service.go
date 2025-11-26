@@ -4,9 +4,10 @@ import (
 	"crypto/rand"
 	"time"
 
+	"verify/config"
+	"verify/models"
+
 	"github.com/labstack/echo/v4"
-	"main.go/config"
-	"main.go/models"
 )
 
 type OTPService struct{}

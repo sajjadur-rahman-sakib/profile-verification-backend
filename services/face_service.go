@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"main.go/config"
+	"verify/config"
 )
 
 type FaceService struct{}

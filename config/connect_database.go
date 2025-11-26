@@ -3,9 +3,10 @@ package config
 import (
 	"fmt"
 
+	"verify/models"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"main.go/models"
 )
 
 var DB *gorm.DB

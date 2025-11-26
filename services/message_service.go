@@ -4,9 +4,10 @@ import (
 	"errors"
 	"time"
 
+	"verify/config"
+	"verify/models"
+
 	"gorm.io/gorm"
-	"main.go/config"
-	"main.go/models"
 )
 
 type MessageService struct{}

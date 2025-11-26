@@ -5,10 +5,11 @@ import (
 	"strconv"
 	"time"
 
+	"verify/config"
+	"verify/models"
+	"verify/services"
+
 	"github.com/labstack/echo/v4"
-	"main.go/config"
-	"main.go/models"
-	"main.go/services"
 )
 
 type MessageHandler struct {

@@ -5,8 +5,8 @@ import (
 	"mime/multipart"
 	"os"
 
-	"main.go/config"
-	"main.go/models"
+	"verify/config"
+	"verify/models"
 )
 
 type UploadService struct{}

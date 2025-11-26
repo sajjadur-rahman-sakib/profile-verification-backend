@@ -1,6 +1,6 @@
 package main
 
-import "main.go/command"
+import "verify/command"
 
 func main() {
 	command.Serve()

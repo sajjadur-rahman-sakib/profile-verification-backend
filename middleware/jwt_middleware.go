@@ -3,9 +3,10 @@ package middleware
 import (
 	"strings"
 
+	"verify/config"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
-	"main.go/config"
 )
 
 func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {

@@ -3,9 +3,10 @@ package services
 import (
 	"time"
 
+	"verify/config"
+	"verify/models"
+
 	"github.com/dgrijalva/jwt-go"
-	"main.go/config"
-	"main.go/models"
 )
 
 type TokenService struct{}

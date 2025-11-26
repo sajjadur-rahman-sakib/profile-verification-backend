@@ -1,9 +1,10 @@
 package command
 
 import (
+	"verify/config"
+	"verify/routes"
+
 	"github.com/labstack/echo/v4"
-	"main.go/config"
-	"main.go/routes"
 )
 
 func Serve() {

@@ -1,10 +1,11 @@
 package services
 
 import (
+	"verify/config"
+	"verify/models"
+
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
-	"main.go/config"
-	"main.go/models"
 )
 
 type LoginService struct{}
