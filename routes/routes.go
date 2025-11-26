@@ -10,35 +10,64 @@ import (
 func SetupRoutes(e *echo.Echo) {
 	e.Static("/uploads", "uploads")
 
-	authService := services.NewAuthService()
+	// Initialize services
 	emailService := services.NewEmailService()
 	faceService := services.NewFaceService()
 	ratingService := services.NewRatingService()
 	messageService := services.NewMessageService()
-	authHandler := handlers.NewAuthHandler(authService, emailService, faceService, ratingService)
+	loginService := services.NewLoginService()
+	signupService := services.NewSignupService()
+	uploadService := services.NewUploadService()
+	profileService := services.NewProfileService(uploadService)
+	passwordService := services.NewPasswordService()
+	otpService := services.NewOTPService()
+	accountService := services.NewAccountService()
+	tokenService := services.NewTokenService()
+
+	// Initialize handlers
+	loginHandler := handlers.NewLoginHandler(loginService, tokenService)
+	signupHandler := handlers.NewSignupHandler(signupService, otpService, emailService, uploadService, tokenService)
+	profileHandler := handlers.NewProfileHandler(profileService)
+	passwordHandler := handlers.NewPasswordHandler(passwordService, otpService, emailService)
+	otpHandler := handlers.NewOTPHandler(otpService, emailService)
+	accountHandler := handlers.NewAccountHandler(accountService)
+	uploadHandler := handlers.NewUploadHandler(uploadService, profileService, faceService)
 	ratingHandler := handlers.NewRatingHandler(ratingService)
 	messageHandler := handlers.NewMessageHandler(messageService)
 
 	api := e.Group("/api")
 	{
-		api.POST("/user-login", authHandler.Login)
-		api.POST("/update-profile", authHandler.UpdateProfile, middleware.JWTMiddleware)
-		api.POST("/change-password", authHandler.ChangePassword, middleware.JWTMiddleware)
-		api.POST("/delete-account", authHandler.DeleteAccount, middleware.JWTMiddleware)
+		// Login routes
+		api.POST("/user-login", loginHandler.Login)
 
-		api.POST("/user-signup", authHandler.Signup)
-		api.POST("/resend-otp", authHandler.ResendOTP, middleware.JWTMiddleware)
-		api.POST("/verify-otp", authHandler.VerifyOTP, middleware.JWTMiddleware)
-		api.POST("/upload-document", authHandler.UploadDocument, middleware.JWTMiddleware)
-		api.POST("/upload-selfie", authHandler.UploadSelfie, middleware.JWTMiddleware)
+		// Signup routes
+		api.POST("/user-signup", signupHandler.Signup)
 
-		api.POST("/forgot-password", authHandler.ForgotPassword)
-		api.POST("/reset-password", authHandler.ResetPassword)
-		api.POST("/search-profile", authHandler.SearchProfile, middleware.JWTMiddleware)
+		// Profile routes
+		api.POST("/update-profile", profileHandler.UpdateProfile, middleware.JWTMiddleware)
+		api.POST("/search-profile", profileHandler.SearchProfile, middleware.JWTMiddleware)
 
+		// Password routes
+		api.POST("/change-password", passwordHandler.ChangePassword, middleware.JWTMiddleware)
+		api.POST("/forgot-password", passwordHandler.ForgotPassword)
+		api.POST("/reset-password", passwordHandler.ResetPassword)
+
+		// OTP routes
+		api.POST("/resend-otp", otpHandler.ResendOTP, middleware.JWTMiddleware)
+		api.POST("/verify-otp", otpHandler.VerifyOTP, middleware.JWTMiddleware)
+
+		// Account routes
+		api.POST("/delete-account", accountHandler.DeleteAccount, middleware.JWTMiddleware)
+
+		// Upload routes
+		api.POST("/upload-document", uploadHandler.UploadDocument, middleware.JWTMiddleware)
+		api.POST("/upload-selfie", uploadHandler.UploadSelfie, middleware.JWTMiddleware)
+
+		// Rating routes
 		api.POST("/give-rating", ratingHandler.GiveRating, middleware.JWTMiddleware)
 		api.POST("/user-ratings", ratingHandler.GetUserRatings, middleware.JWTMiddleware)
 
+		// Message routes
 		api.POST("/user-contacts", messageHandler.GetContacts, middleware.JWTMiddleware)
 		api.POST("/send-message", messageHandler.SendMessage, middleware.JWTMiddleware)
 		api.POST("/user-conversation", messageHandler.GetConversation, middleware.JWTMiddleware)
