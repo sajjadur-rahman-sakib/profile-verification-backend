@@ -105,8 +105,18 @@ func (s *RatingService) GetAverageRating(email string) (float64, int, error) {
 
 func (s *RatingService) GetUserRatings(email string) ([]models.Rating, error) {
 	var ratings []models.Rating
-	if err := config.DB.Where("rated_email = ?", email).Find(&ratings).Error; err != nil {
+	if err := config.DB.Where("rated_email = ?", email).Order("created_at desc").Find(&ratings).Error; err != nil {
 		return nil, err
 	}
+
+	for i := range ratings {
+		var rater models.User
+		if err := config.DB.Where("email = ?", ratings[i].RaterEmail).First(&rater).Error; err == nil {
+			ratings[i].RaterName = rater.Name
+			ratings[i].RaterProfilePicture = rater.ProfilePicture
+			ratings[i].RaterIsVerified = rater.IsVerified
+		}
+	}
+
 	return ratings, nil
 }
