@@ -15,7 +15,7 @@ func NewRatingService() *RatingService {
 	return &RatingService{}
 }
 
-func (s *RatingService) GiveRating(raterEmail, ratedEmail string, rating int) error {
+func (s *RatingService) GiveRating(raterEmail, ratedEmail string, rating int, comment *string) error {
 	if rating < 1 || rating > 5 {
 		return errors.New("rating must be between 1 and 5")
 	}
@@ -45,6 +45,7 @@ func (s *RatingService) GiveRating(raterEmail, ratedEmail string, rating int) er
 
 	if result.Error == nil {
 		existingRating.Rating = rating
+		existingRating.Comment = comment
 		if err := config.DB.Save(&existingRating).Error; err != nil {
 			return err
 		}
@@ -53,6 +54,7 @@ func (s *RatingService) GiveRating(raterEmail, ratedEmail string, rating int) er
 			RaterEmail: raterEmail,
 			RatedEmail: ratedEmail,
 			Rating:     rating,
+			Comment:    comment,
 		}
 		if err := config.DB.Create(&newRating).Error; err != nil {
 			return err

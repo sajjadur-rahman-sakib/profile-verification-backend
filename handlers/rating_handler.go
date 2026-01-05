@@ -21,6 +21,7 @@ func (h *RatingHandler) GiveRating(c echo.Context) error {
 	raterEmail := c.FormValue("rater_email")
 	ratedEmail := c.FormValue("rated_email")
 	ratingStr := c.FormValue("rating")
+	comment := c.FormValue("comment")
 
 	if raterEmail == "" || ratedEmail == "" || ratingStr == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -35,7 +36,12 @@ func (h *RatingHandler) GiveRating(c echo.Context) error {
 		})
 	}
 
-	if err := h.ratingService.GiveRating(raterEmail, ratedEmail, rating); err != nil {
+	var commentPtr *string
+	if comment != "" {
+		commentPtr = &comment
+	}
+
+	if err := h.ratingService.GiveRating(raterEmail, ratedEmail, rating, commentPtr); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
 		})
