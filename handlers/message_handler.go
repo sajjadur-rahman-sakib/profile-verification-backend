@@ -157,12 +157,14 @@ func (h *MessageHandler) GetConversation(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"sender": map[string]interface{}{
-			"email": sender.Email,
-			"name":  sender.Name,
+			"email":           sender.Email,
+			"name":            sender.Name,
+			"profile_picture": sender.ProfilePicture,
 		},
 		"receiver": map[string]interface{}{
-			"email": receiver.Email,
-			"name":  receiver.Name,
+			"email":           receiver.Email,
+			"name":            receiver.Name,
+			"profile_picture": receiver.ProfilePicture,
 		},
 		"count":    len(out),
 		"messages": out,

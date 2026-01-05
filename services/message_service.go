@@ -82,8 +82,9 @@ func (s *MessageService) GetInbox(email string, limit int) ([]models.Message, er
 }
 
 type Contact struct {
-	Email string `json:"email"`
-	Name  string `json:"name"`
+	Email          string `json:"email"`
+	Name           string `json:"name"`
+	ProfilePicture string `json:"profile_picture"`
 }
 
 func (s *MessageService) GetContacts(userEmail string) ([]Contact, error) {
@@ -93,7 +94,7 @@ func (s *MessageService) GetContacts(userEmail string) ([]Contact, error) {
 
 	rows := make([]Contact, 0)
 	raw := `
-		SELECT u.email AS email, COALESCE(u.name, '') AS name
+		SELECT u.email AS email, COALESCE(u.name, '') AS name, COALESCE(u.profile_picture, '') AS profile_picture
 		FROM users u
 		JOIN (
 			SELECT counterpart_email, MAX(created_at) AS last_at
